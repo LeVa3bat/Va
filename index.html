@@ -7,9 +7,10 @@
     <meta name="theme-color" content="#2d4823">
     <meta name="description" content="Приложение для учета мин 120 мм для 394 полка 3 батальона">
     <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjMmQ0ODIzIi8+Cjx0ZXh0IHg9IjUwIiB5PSI2MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+USQ8L3RleHQ+Cjwvc3ZnPgo=">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSIjMmQ0ODIzIi8+Cjx0ZXh0IHg9IjkwIiB5PSIxMDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI3MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlETPC90ZXh0Pgo8L3N2Zz4K">
+    <link rel="icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -404,7 +405,7 @@
             text-align: center;
         }
 
-        /* Стили для отдельной страницы отчета */
+        /* Стили для отчета */
         .report-page {
             max-width: 210mm;
             margin: 0 auto;
@@ -450,6 +451,12 @@
             .report-page {
                 padding: 0;
                 margin: 0;
+            }
+            body * {
+                visibility: hidden;
+            }
+            .report-page, .report-page * {
+                visibility: visible;
             }
         }
     </style>
@@ -647,6 +654,9 @@
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="generateReport()"><i class="fas fa-file-pdf"></i> Сформировать отчёт</button>
+                    <button class="btn btn-primary" onclick="showReportPage()"><i class="fas fa-external-link-alt"></i> Показать отчёт</button>
+                    <button class="btn btn-success" onclick="downloadPDF()"><i class="fas fa-download"></i> Скачать PDF</button>
+                    <button class="btn btn-primary" id="shareReportBtn" onclick="shareReport()" style="display: none;"><i class="fas fa-share-alt"></i> Поделиться отчётом</button>
                 </div>
                 
                 <div class="report-container" id="report-output" style="display: none;">
@@ -671,177 +681,119 @@
 
     <div class="notification" id="notification">Операция выполнена успешно!</div>
 
-    <script type="module">
-        // Типы данных
-        interface Operation {
-            date: string;
-            operation: 'приход' | 'расход';
-            amount: number;
-        }
-
-        interface MineType {
-            name: string;
-            income: number;
-            expense: number;
-            balance: number;
-            operations: Operation[];
-        }
-
-        interface ComponentType {
-            name: string;
-            unit: string;
-            income: number;
-            expense: number;
-            balance: number;
-            operations: Operation[];
-        }
-
-        interface AppData {
-            mineData: Record<string, MineType>;
-            componentData: Record<string, ComponentType>;
-            operations: Array<{
-                date: string;
-                name: string;
-                operation: 'приход' | 'расход';
-                amount: number;
-            }>;
-        }
-
-        // Глобальные переменные
-        let mineData: Record<string, MineType> = {
+    <script>
+        let mineData = {
             'of': { name: 'ОФ', income: 0, expense: 0, balance: 0, operations: [] },
             'smoke': { name: 'Дымовые', income: 0, expense: 0, balance: 0, operations: [] },
             'light': { name: 'Осветительные', income: 0, expense: 0, balance: 0, operations: [] },
             'incendiary': { name: 'Зажигательные', income: 0, expense: 0, balance: 0, operations: [] }
         };
         
-        let componentData: Record<string, ComponentType> = {
+        let componentData = {
             'detonators': { name: 'Взрыватели', unit: 'шт.', income: 0, expense: 0, balance: 0, operations: [] },
             'ejecting': { name: 'Вышибные заряды', unit: 'шт.', income: 0, expense: 0, balance: 0, operations: [] },
             'powder': { name: 'Пороховые заряды', unit: 'пачки', income: 0, expense: 0, balance: 0, operations: [] }
         };
         
-        let operations: Array<{
-            date: string;
-            name: string;
-            operation: 'приход' | 'расход';
-            amount: number;
-        }> = [];
-        let currentReportHTML: string = '';
-
-        // Функции
-        function saveDataToStorage(): void {
-            const data: AppData = { mineData, componentData, operations };
-            localStorage.setItem('ammoAccountingData', JSON.stringify(data));
+        let operations = [];
+        let currentReportHTML = '';
+        
+        function saveDataToStorage() {
+            localStorage.setItem('ammoAccountingData', JSON.stringify({ mineData, componentData, operations }));
         }
         
-        function loadDataFromStorage(): void {
+        function loadDataFromStorage() {
             const savedData = localStorage.getItem('ammoAccountingData');
             if (savedData) {
-                const parsed: AppData = JSON.parse(savedData);
+                const parsed = JSON.parse(savedData);
                 mineData = parsed.mineData || mineData;
                 componentData = parsed.componentData || componentData;
                 operations = parsed.operations || operations;
             }
         }
         
-        function openTab(tabName: string): void {
-            document.querySelectorAll('.tab-content').forEach((t: Element) => t.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach((t: Element) => t.classList.remove('active'));
-            const tabElement = document.getElementById(tabName);
-            if (tabElement) {
-                tabElement.classList.add('active');
-            }
-            (event?.currentTarget as HTMLElement)?.classList.add('active');
+        function openTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
         
-        function showNotification(message: string, isError: boolean = false): void {
-            const n = document.getElementById('notification') as HTMLElement;
+        function showNotification(message, isError = false) {
+            const n = document.getElementById('notification');
             n.textContent = message;
             n.classList.toggle('error', isError);
             n.classList.add('show');
             setTimeout(() => n.classList.remove('show'), 3000);
         }
         
-        function addMines(): void {
-            const type = (document.getElementById('mine-type') as HTMLSelectElement).value;
-            const amount = parseInt((document.getElementById('operation-amount') as HTMLInputElement).value);
-            const date = (document.getElementById('operation-date') as HTMLInputElement).value;
+        function addMines() {
+            const type = document.getElementById('mine-type').value;
+            const amount = parseInt(document.getElementById('operation-amount').value);
+            const date = document.getElementById('operation-date').value;
             
-            if (!date || isNaN(amount) || amount <= 0) {
-                return showNotification('Некорректные данные', true);
-            }
+            if (!date || isNaN(amount) || amount <= 0) return showNotification('Некорректные данные', true);
             
             mineData[type].income += amount;
             mineData[type].balance += amount;
             mineData[type].operations.push({ date, operation: 'приход', amount });
             operations.push({ date, name: mineData[type].name, operation: 'приход', amount });
             updateTables();
-            (document.getElementById('operation-amount') as HTMLInputElement).value = '1';
+            document.getElementById('operation-amount').value = '1';
             showNotification(`Добавлено ${amount} ${mineData[type].name}`);
         }
         
-        function removeMines(): void {
-            const type = (document.getElementById('mine-type') as HTMLSelectElement).value;
-            const amount = parseInt((document.getElementById('operation-amount') as HTMLInputElement).value);
-            const date = (document.getElementById('operation-date') as HTMLInputElement).value;
+        function removeMines() {
+            const type = document.getElementById('mine-type').value;
+            const amount = parseInt(document.getElementById('operation-amount').value);
+            const date = document.getElementById('operation-date').value;
             
-            if (!date || isNaN(amount) || amount <= 0) {
-                return showNotification('Некорректные данные', true);
-            }
-            if (amount > mineData[type].balance) {
-                return showNotification('Недостаточно', true);
-            }
+            if (!date || isNaN(amount) || amount <= 0) return showNotification('Некорректные данные', true);
+            if (amount > mineData[type].balance) return showNotification('Недостаточно', true);
             
             mineData[type].expense += amount;
             mineData[type].balance -= amount;
             mineData[type].operations.push({ date, operation: 'расход', amount });
             operations.push({ date, name: mineData[type].name, operation: 'расход', amount });
             updateTables();
-            (document.getElementById('operation-amount') as HTMLInputElement).value = '1';
+            document.getElementById('operation-amount').value = '1';
             showNotification(`Списано ${amount} ${mineData[type].name}`);
         }
         
-        function addComponents(): void {
-            const type = (document.getElementById('component-type') as HTMLSelectElement).value;
-            const amount = parseInt((document.getElementById('component-amount') as HTMLInputElement).value);
-            const date = (document.getElementById('component-date') as HTMLInputElement).value;
+        function addComponents() {
+            const type = document.getElementById('component-type').value;
+            const amount = parseInt(document.getElementById('component-amount').value);
+            const date = document.getElementById('component-date').value;
             
-            if (!date || isNaN(amount) || amount <= 0) {
-                return showNotification('Некорректные данные', true);
-            }
+            if (!date || isNaN(amount) || amount <= 0) return showNotification('Некорректные данные', true);
             
             componentData[type].income += amount;
             componentData[type].balance += amount;
             componentData[type].operations.push({ date, operation: 'приход', amount });
             operations.push({ date, name: componentData[type].name, operation: 'приход', amount });
             updateTables();
-            (document.getElementById('component-amount') as HTMLInputElement).value = '1';
+            document.getElementById('component-amount').value = '1';
             showNotification(`Добавлено ${amount} ${componentData[type].unit} ${componentData[type].name}`);
         }
         
-        function removeComponents(): void {
-            const type = (document.getElementById('component-type') as HTMLSelectElement).value;
-            const amount = parseInt((document.getElementById('component-amount') as HTMLInputElement).value);
-            const date = (document.getElementById('component-date') as HTMLInputElement).value;
+        function removeComponents() {
+            const type = document.getElementById('component-type').value;
+            const amount = parseInt(document.getElementById('component-amount').value);
+            const date = document.getElementById('component-date').value;
             
-            if (!date || isNaN(amount) || amount <= 0) {
-                return showNotification('Некорректные данные', true);
-            }
-            if (amount > componentData[type].balance) {
-                return showNotification('Недостаточно', true);
-            }
+            if (!date || isNaN(amount) || amount <= 0) return showNotification('Некорректные данные', true);
+            if (amount > componentData[type].balance) return showNotification('Недостаточно', true);
             
             componentData[type].expense += amount;
             componentData[type].balance -= amount;
             componentData[type].operations.push({ date, operation: 'расход', amount });
             operations.push({ date, name: componentData[type].name, operation: 'расход', amount });
             updateTables();
-            (document.getElementById('component-amount') as HTMLInputElement).value = '1';
+            document.getElementById('component-amount').value = '1';
             showNotification(`Списано ${amount} ${componentData[type].unit} ${componentData[type].name}`);
         }
         
-        function updateTables(): void {
+        function updateTables() {
             updateMinesTable();
             updateComponentsTable();
             updateOperationsTable();
@@ -849,11 +801,11 @@
             saveDataToStorage();
         }
         
-        function updateMinesTable(): void {
-            const body = document.getElementById('mines-table-body') as HTMLElement;
+        function updateMinesTable() {
+            const body = document.getElementById('mines-table-body');
             body.innerHTML = '';
             let ti = 0, te = 0, tb = 0;
-            for (const k in mineData) {
+            for (let k in mineData) {
                 const r = document.createElement('tr');
                 r.innerHTML = `<td>${mineData[k].name}</td><td>${mineData[k].income}</td><td>${mineData[k].expense}</td><td>${mineData[k].balance}</td>`;
                 body.appendChild(r);
@@ -861,23 +813,23 @@
                 te += mineData[k].expense;
                 tb += mineData[k].balance;
             }
-            (document.getElementById('total-income-value') as HTMLElement).textContent = ti.toString();
-            (document.getElementById('total-expense-value') as HTMLElement).textContent = te.toString();
-            (document.getElementById('total-balance-value') as HTMLElement).textContent = tb.toString();
+            document.getElementById('total-income-value').textContent = ti;
+            document.getElementById('total-expense-value').textContent = te;
+            document.getElementById('total-balance-value').textContent = tb;
         }
         
-        function updateComponentsTable(): void {
-            const body = document.getElementById('components-table-body') as HTMLElement;
+        function updateComponentsTable() {
+            const body = document.getElementById('components-table-body');
             body.innerHTML = '';
-            for (const k in componentData) {
+            for (let k in componentData) {
                 const r = document.createElement('tr');
                 r.innerHTML = `<td>${componentData[k].name}</td><td>${componentData[k].unit}</td><td>${componentData[k].income}</td><td>${componentData[k].expense}</td><td>${componentData[k].balance}</td>`;
                 body.appendChild(r);
             }
         }
         
-        function updateOperationsTable(): void {
-            const body = document.getElementById('operations-table-body') as HTMLElement;
+        function updateOperationsTable() {
+            const body = document.getElementById('operations-table-body');
             body.innerHTML = '';
             operations.slice(-5).reverse().forEach(op => {
                 const r = document.createElement('tr');
@@ -886,11 +838,11 @@
             });
         }
         
-        function updateStatistics(): void {
+        function updateStatistics() {
             let tm = 0, ti = 0, te = 0, tc = 0;
             const cm = new Date().getMonth();
             const cy = new Date().getFullYear();
-            for (const k in mineData) {
+            for (let k in mineData) {
                 tm += mineData[k].balance;
                 let mi = 0, me = 0;
                 mineData[k].operations.forEach(op => {
@@ -903,27 +855,25 @@
                 ti += mi;
                 te += me;
             }
-            for (const k in componentData) tc += componentData[k].balance;
-            (document.getElementById('total-mines') as HTMLElement).textContent = tm.toString();
-            (document.getElementById('total-income') as HTMLElement).textContent = ti.toString();
-            (document.getElementById('total-expense') as HTMLElement).textContent = te.toString();
-            (document.getElementById('total-components') as HTMLElement).textContent = tc.toString();
+            for (let k in componentData) tc += componentData[k].balance;
+            document.getElementById('total-mines').textContent = tm;
+            document.getElementById('total-income').textContent = ti;
+            document.getElementById('total-expense').textContent = te;
+            document.getElementById('total-components').textContent = tc;
         }
         
-        function generateReport(): void {
-            const date = (document.getElementById('report-date') as HTMLInputElement).value;
-            const type = (document.getElementById('report-type') as HTMLSelectElement).value;
-            const notes = (document.getElementById('report-notes') as HTMLTextAreaElement).value;
-            if (!date) {
-                return showNotification('Выберите дату', true);
-            }
+        function generateReport() {
+            const date = document.getElementById('report-date').value;
+            const type = document.getElementById('report-type').value;
+            const notes = document.getElementById('report-notes').value;
+            if (!date) return showNotification('Выберите дату', true);
             const fd = new Date(date).toLocaleDateString('ru-RU');
-            (document.getElementById('report-date-output') as HTMLElement).textContent = fd;
+            document.getElementById('report-date-output').textContent = fd;
             let content = '';
             if (type === 'full' || type === 'mines') {
                 content += '<h3>Мины:</h3><table><tr><th>Тип</th><th>Приход</th><th>Расход</th><th>Остаток</th></tr>';
                 let ti = 0, te = 0, tb = 0;
-                for (const k in mineData) {
+                for (let k in mineData) {
                     content += `<tr><td>${mineData[k].name}</td><td>${mineData[k].income}</td><td>${mineData[k].expense}</td><td>${mineData[k].balance}</td></tr>`;
                     ti += mineData[k].income;
                     te += mineData[k].expense;
@@ -933,26 +883,111 @@
             }
             if (type === 'full' || type === 'components') {
                 content += '<h3>Комплектующие:</h3><table><tr><th>Наим.</th><th>Ед.</th><th>Приход</th><th>Расход</th><th>Остаток</th></tr>';
-                for (const k in componentData) {
+                for (let k in componentData) {
                     content += `<tr><td>${componentData[k].name}</td><td>${componentData[k].unit}</td><td>${componentData[k].income}</td><td>${componentData[k].expense}</td><td>${componentData[k].balance}</td></tr>`;
                 }
                 content += '</table>';
             }
             if (notes) content += `<h3>Примечания:</h3><p>${notes}</p>`;
-            (document.getElementById('report-content') as HTMLElement).innerHTML = content;
-            (document.getElementById('report-output') as HTMLElement).style.display = 'block';
+            document.getElementById('report-content').innerHTML = content;
+            document.getElementById('report-output').style.display = 'block';
             currentReportHTML = `
                 <div class="report-page">
                     <h2>Отчёт о состоянии мин и комплектующих</h2>
                     <p>394 полк 3 батальон, миномётная батарея</p>
                     <p>на дату: ${fd}</p>
-                    ${content.replace(/class="total-row"/g, 'class="total-row"')}
+                    ${content}
                 </div>
             `;
+            document.getElementById('shareReportBtn').style.display = 'inline-flex';
             showNotification('Отчёт сформирован');
         }
 
-        function shareApp(): void {
+        function showReportPage() {
+            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
+            const reportWindow = window.open('', '_blank', 'width=800,height=600');
+            reportWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ru">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Отчёт</title>
+                    <style>
+                        ${document.querySelector('style').innerHTML}
+                    </style>
+                </head>
+                <body>
+                    ${currentReportHTML}
+                    <div style="text-align: center; margin-top: 20mm;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Печать</button>
+                        <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Закрыть</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            reportWindow.document.close();
+        }
+        
+        function printReport() {
+            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ru">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Отчёт для печати</title>
+                    <style>
+                        ${document.querySelector('style').innerHTML}
+                        @media print {
+                            body { background: white !important; }
+                            .report-page { padding: 0 !important; margin: 0 !important; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${currentReportHTML}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        function downloadPDF() {
+            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.html(currentReportHTML, {
+                callback: function (doc) {
+                    doc.save('otchet.pdf');
+                },
+                x: 10,
+                y: 10,
+                width: 190,
+                windowWidth: 800
+            });
+        }
+        
+        async function shareReport() {
+            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Отчёт о состоянии мин и комплектующих',
+                        text: 'Отчёт 394 полк 3 батальон',
+                        url: URL.createObjectURL(new Blob([currentReportHTML], {type: 'text/html'}))
+                    });
+                } catch (err) {
+                    showNotification('Ошибка при поделиться', true);
+                }
+            } else {
+                showNotification('Поделиться не поддерживается', true);
+            }
+        }
+        
+        function shareApp() {
             if (navigator.share) {
                 navigator.share({title: 'Учет мин 120 мм', text: 'Приложение для учета', url: location.href})
                     .catch(() => showNotification('Поделиться не поддерживается', true));
@@ -961,19 +996,18 @@
             }
         }
         
-        let deferredPrompt: BeforeInstallPromptEvent | null = null;
-        const installButton = document.getElementById('installButton') as HTMLButtonElement;
-        installButton.addEventListener('click', () => deferredPrompt?.prompt());
-        window.addEventListener('beforeinstallprompt', (e: BeforeInstallPromptEvent) => {
+        let deferredPrompt;
+        document.getElementById('installButton').addEventListener('click', () => deferredPrompt && deferredPrompt.prompt());
+        window.addEventListener('beforeinstallprompt', e => {
             e.preventDefault();
             deferredPrompt = e;
-            installButton.style.display = 'inline-flex';
+            document.getElementById('installButton').style.display = 'inline-flex';
         });
-        window.addEventListener('appinstalled', () => installButton.style.display = 'none');
+        window.addEventListener('appinstalled', () => document.getElementById('installButton').style.display = 'none');
         
-        function updateOnlineStatus(): void {
-            const s = document.querySelector('#offline-status span') as HTMLElement;
-            const i = document.querySelector('#offline-status i') as HTMLElement;
+        function updateOnlineStatus() {
+            const s = document.querySelector('#offline-status span');
+            const i = document.querySelector('#offline-status i');
             if (navigator.onLine) {
                 s.textContent = 'Онлайн';
                 i.className = 'fas fa-wifi';
@@ -995,9 +1029,9 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadDataFromStorage();
             const t = new Date().toISOString().slice(0,10);
-            (document.getElementById('operation-date') as HTMLInputElement).value = t;
-            (document.getElementById('component-date') as HTMLInputElement).value = t;
-            (document.getElementById('report-date') as HTMLInputElement).value = t;
+            document.getElementById('operation-date').value = t;
+            document.getElementById('component-date').value = t;
+            document.getElementById('report-date').value = t;
             updateTables();
             updateOnlineStatus();
         });
