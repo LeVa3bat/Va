@@ -10,7 +10,6 @@
     <link rel="icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -649,8 +648,6 @@
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="generateReport()"><i class="fas fa-file-pdf"></i> Сформировать отчёт</button>
                     <button class="btn btn-primary" onclick="showReportPage()"><i class="fas fa-external-link-alt"></i> Показать отчёт</button>
-                    <button class="btn btn-success" onclick="downloadPDF()"><i class="fas fa-download"></i> Скачать PDF</button>
-                    <button class="btn btn-primary" id="shareReportBtn" onclick="shareReport()" style="display: none;"><i class="fas fa-share-alt"></i> Поделиться отчётом</button>
                 </div>
                 
                 <div class="report-container" id="report-output" style="display: none;">
@@ -893,7 +890,6 @@
                     ${content.replace(/class="total-row"/g, 'class="total-row"')}
                 </div>
             `;
-            document.getElementById('shareReportBtn').style.display = 'inline-flex';
             showNotification('Отчёт сформирован');
         }
 
@@ -927,43 +923,23 @@
                     <div style="text-align: center; margin-top: 20mm;">
                         <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Печать</button>
                         <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Закрыть</button>
+                        <button onclick="downloadReport()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Скачать HTML</button>
                     </div>
+                    <script>
+                        function downloadReport() {
+                            const element = document.createElement('a');
+                            const file = new Blob([document.documentElement.outerHTML], {type: 'text/html'});
+                            element.href = URL.createObjectURL(file);
+                            element.download = 'otchet.html';
+                            document.body.appendChild(element);
+                            element.click();
+                            document.body.removeChild(element);
+                        }
+                    </script>
                 </body>
                 </html>
             `);
             reportWindow.document.close();
-        }
-        
-        function downloadPDF() {
-            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.html(currentReportHTML, {
-                callback: function (doc) {
-                    doc.save('otchet.pdf');
-                },
-                x: 10,
-                y: 10,
-                width: 190,
-                windowWidth: 800
-            });
-        }
-        
-        async function shareReport() {
-            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'Отчёт о состоянии мин и комплектующих',
-                        text: 'Отчёт 394 полк 3 батальон',
-                        url: URL.createObjectURL(new Blob([currentReportHTML], {type: 'text/html'}))
-                    });
-                } catch (err) {
-                    showNotification('Ошибка分享', true);
-                }
-            } else {
-                showNotification('Поделиться не поддерживается', true);
-            }
         }
         
         function shareApp() {
