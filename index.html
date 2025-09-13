@@ -7,8 +7,8 @@
     <meta name="theme-color" content="#2d4823">
     <meta name="description" content="Приложение для учета мин 120 мм для 394 полка 3 батальона">
     <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjMmQ0ODIzIi8+Cjx0ZXh0IHg9IjUwIiB5PSI2MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjQwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+USQ8L3RleHQ+Cjwvc3ZnPgo=">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiBmaWxsPSIjMmQ0ODIzIi8+Cjx0ZXh0IHg9IjkwIiB5PSIxMDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSI3MCIgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPlETPC90ZXh0Pgo8L3N2Zz4K">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -647,7 +647,6 @@
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="generateReport()"><i class="fas fa-file-pdf"></i> Сформировать отчёт</button>
-                    <button class="btn btn-primary" onclick="showReportPage()"><i class="fas fa-external-link-alt"></i> Показать отчёт</button>
                 </div>
                 
                 <div class="report-container" id="report-output" style="display: none;">
@@ -953,49 +952,6 @@
             showNotification('Отчёт сформирован');
         }
 
-        function showReportPage(): void {
-            if (!currentReportHTML) {
-                return showNotification('Сначала сформируйте отчёт', true);
-            }
-            const reportWindow = window.open('', '_blank', 'width=800,height=600');
-            reportWindow.document.write(`
-                <!DOCTYPE html>
-                <html lang="ru">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Отчёт</title>
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                    <style>
-                        :root {
-                            --primary-color: #2c3e50;
-                            --secondary-color: #4a6572;
-                            --accent-color: #f39c12;
-                            --danger-color: #e74c3c;
-                            --success-color: #2ecc71;
-                            --warning-color: #f39c12;
-                            --light-color: #ecf0f1;
-                            --dark-color: #1a2530;
-                        }
-                        /* Вставляем все стили из основного документа */
-                        body { background: white; color: black; padding: 20px; }
-                        .report-page { max-width: none; padding: 0; }
-                        /* ... (остальные стили) */
-                        ${document.querySelector('style')?.innerHTML || ''}
-                    </style>
-                </head>
-                <body>
-                    ${currentReportHTML}
-                    <div style="text-align: center; margin-top: 20mm;">
-                        <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Печать</button>
-                        <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Закрыть</button>
-                    </div>
-                </body>
-                </html>
-            `);
-            reportWindow.document.close();
-        }
-        
         function shareApp(): void {
             if (navigator.share) {
                 navigator.share({title: 'Учет мин 120 мм', text: 'Приложение для учета', url: location.href})
