@@ -10,6 +10,7 @@
     <link rel="icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -404,55 +405,52 @@
             text-align: center;
         }
 
-        /* Стили для печати отчета на одном листе */
+        /* Стили для отдельной страницы отчета */
+        .report-page {
+            max-width: 210mm;
+            margin: 0 auto;
+            background: white;
+            color: black;
+            padding: 20mm;
+            font-size: 12pt;
+            line-height: 1.4;
+        }
+
+        .report-page table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+
+        .report-page th, .report-page td {
+            padding: 5mm;
+            border: 1px solid black;
+            text-align: left;
+        }
+
+        .report-page th {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .report-page .total-row {
+            background: lightgray;
+            font-weight: bold;
+        }
+
+        .report-page h2, .report-page h3 {
+            text-align: center;
+            margin: 10mm 0;
+        }
+
+        .report-page p {
+            margin: 5mm 0;
+        }
+
         @media print {
-            body {
-                background: white;
-                color: black;
-                font-size: 10pt;
+            .report-page {
                 padding: 0;
                 margin: 0;
-            }
-            .report-container {
-                background: white;
-                color: black;
-                padding: 5mm;
-                border: none;
-                font-size: 10pt;
-            }
-            .report-header {
-                text-align: center;
-                margin-bottom: 5mm;
-                border-bottom: 1px solid black;
-                padding-bottom: 3mm;
-            }
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 9pt;
-                page-break-inside: avoid;
-            }
-            th, td {
-                padding: 3mm 2mm;
-                border: 1px solid black;
-            }
-            h3 {
-                font-size: 12pt;
-                margin: 5mm 0 3mm;
-            }
-            p {
-                margin: 3mm 0;
-            }
-            .total-row {
-                background: lightgray;
-            }
-            /* Скрыть ненужное */
-            header, footer, .tabs, .action-buttons, .pwa-info, .notification, .mobile-form, .card-title:not(.report-header) {
-                display: none;
-            }
-            @page {
-                size: A4;
-                margin: 10mm;
             }
         }
     </style>
@@ -650,7 +648,9 @@
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="generateReport()"><i class="fas fa-file-pdf"></i> Сформировать отчёт</button>
-                    <button class="btn btn-primary" onclick="printReport()"><i class="fas fa-print"></i> Печать</button>
+                    <button class="btn btn-primary" onclick="showReportPage()"><i class="fas fa-external-link-alt"></i> Показать отчёт</button>
+                    <button class="btn btn-success" onclick="downloadPDF()"><i class="fas fa-download"></i> Скачать PDF</button>
+                    <button class="btn btn-primary" id="shareReportBtn" onclick="shareReport()" style="display: none;"><i class="fas fa-share-alt"></i> Поделиться отчётом</button>
                 </div>
                 
                 <div class="report-container" id="report-output" style="display: none;">
@@ -690,6 +690,7 @@
         };
         
         let operations = [];
+        let currentReportHTML = '';
         
         function saveDataToStorage() {
             localStorage.setItem('ammoAccountingData', JSON.stringify({ mineData, componentData, operations }));
@@ -709,7 +710,7 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
-            if (event && event.currentTarget) event.currentTarget.classList.add('active');
+            event.currentTarget.classList.add('active');
         }
         
         function showNotification(message, isError = false) {
@@ -884,22 +885,94 @@
             if (notes) content += `<h3>Примечания:</h3><p>${notes}</p>`;
             document.getElementById('report-content').innerHTML = content;
             document.getElementById('report-output').style.display = 'block';
+            currentReportHTML = `
+                <div class="report-page">
+                    <h2>Отчёт о состоянии мин и комплектующих</h2>
+                    <p>394 полк 3 батальон, миномётная батарея</p>
+                    <p>на дату: ${fd}</p>
+                    ${content.replace(/class="total-row"/g, 'class="total-row"')}
+                </div>
+            `;
+            document.getElementById('shareReportBtn').style.display = 'inline-flex';
             showNotification('Отчёт сформирован');
         }
+
+        function showReportPage() {
+            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
+            const reportWindow = window.open('', '_blank', 'width=800,height=600');
+            reportWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ru">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Отчёт</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <style>
+                        :root {
+                            --primary-color: #2c3e50;
+                            --secondary-color: #4a6572;
+                            --accent-color: #f39c12;
+                            --danger-color: #e74c3c;
+                            --success-color: #2ecc71;
+                            --warning-color: #f39c12;
+                            --light-color: #ecf0f1;
+                            --dark-color: #1a2530;
+                        }
+                        ${document.querySelector('style').innerHTML} /* Копируем стили */
+                    </style>
+                </head>
+                <body>
+                    ${currentReportHTML}
+                    <div style="text-align: center; margin-top: 20mm;">
+                        <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Печать</button>
+                        <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Закрыть</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            reportWindow.document.close();
+        }
         
-        function printReport() {
-            const ro = document.getElementById('report-output');
-            if (ro.style.display === 'none') return showNotification('Сначала сформируйте отчёт', true);
-            const pc = ro.outerHTML;  // Полный контейнер для совпадения с экраном
-            const oc = document.body.innerHTML;
-            document.body.innerHTML = pc;
-            window.print();
-            document.body.innerHTML = oc;
-            location.reload();
+        function downloadPDF() {
+            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.html(currentReportHTML, {
+                callback: function (doc) {
+                    doc.save('otchet.pdf');
+                },
+                x: 10,
+                y: 10,
+                width: 190,
+                windowWidth: 800
+            });
+        }
+        
+        async function shareReport() {
+            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Отчёт о состоянии мин и комплектующих',
+                        text: 'Отчёт 394 полк 3 батальон',
+                        url: URL.createObjectURL(new Blob([currentReportHTML], {type: 'text/html'}))
+                    });
+                } catch (err) {
+                    showNotification('Ошибка分享', true);
+                }
+            } else {
+                showNotification('Поделиться не поддерживается', true);
+            }
         }
         
         function shareApp() {
-            navigator.share ? navigator.share({title: 'Учет мин 120 мм', text: 'Приложение для учета', url: location.href}) : showNotification('Поделиться не поддерживается', true);
+            if (navigator.share) {
+                navigator.share({title: 'Учет мин 120 мм', text: 'Приложение для учета', url: location.href})
+                    .catch(() => showNotification('Поделиться не поддерживается', true));
+            } else {
+                showNotification('Поделиться не поддерживается', true);
+            }
         }
         
         let deferredPrompt;
@@ -926,7 +999,11 @@
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
         
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('SW registered'))
+                .catch(err => console.log('SW registration failed'));
+        }
         
         document.addEventListener('DOMContentLoaded', () => {
             loadDataFromStorage();
