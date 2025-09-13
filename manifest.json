@@ -1,0 +1,21 @@
+{
+  "name": "Учёт мин 120 мм",
+  "short_name": "Учёт мин",
+  "description": "Учёт мин и комплектующих для 394 полка",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2d4823",
+  "theme_color": "#2d4823",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjEyOCIgZmlsbD0iI2ZmZiI+8LuZPC90ZXh0Pjwvc3ZnPg==",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjM1MCIgZmlsbD0iI2ZmZiI+8LuZPC90ZXh0Pjwvc3ZnPg==",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
