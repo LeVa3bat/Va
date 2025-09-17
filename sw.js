@@ -1,36 +1,24 @@
-const CACHE_NAME = 'mines-accounting-v2';
-const urlsToCache = [
-    '/',
-    '/index.html',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-    '/manifest.json'
-];
-
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(urlsToCache))
-    );
-});
-
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => response || fetch(event.request))
-    );
-});
-
-self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (!cacheWhitelist.includes(cacheName)) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
+{
+    "name": "Учет мин 120 мм",
+    "short_name": "Mines 120mm",
+    "description": "Приложение для учета мин 120 мм для 394 полка 3 батальона",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#2d4823",
+    "theme_color": "#2d4823",
+    "icons": [
+        {
+            "src": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=",
+            "sizes": "192x192",
+            "type": "image/svg+xml"
+        },
+        {
+            "src": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=",
+            "sizes": "512x512",
+            "type": "image/svg+xml"
+        }
+    ],
+    "scope": "/",
+    "orientation": "portrait",
+    "lang": "ru"
+}
