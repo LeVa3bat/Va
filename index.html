@@ -10,7 +10,6 @@
     <link rel="icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
     <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0i1.0Ij8+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzJkNDgyMyIvPjx0ZXh0IHk9Ii45ZW0iIGZvbnQtc2l6ZT0iOTAiIGZpbGw9IiNmZmYiPu+7nzwvdGV4dD48L3N2Zz4=">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -21,6 +20,25 @@
             --warning-color: #f39c12;
             --light-color: #ecf0f1;
             --dark-color: #1a2530;
+            --background-color: #1a2530;
+            --card-bg-color: rgba(255, 255, 255, 0.05);
+            --text-color: #ecf0f1;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        [data-theme="light"] {
+            --primary-color: #3498db;
+            --secondary-color: #bdc3c7;
+            --accent-color: #e67e22;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-color: #2c3e50;
+            --dark-color: #ecf0f1;
+            --background-color: #f5f5f5;
+            --card-bg-color: rgba(255, 255, 255, 0.9);
+            --text-color: #2c3e50;
+            --border-color: rgba(0, 0, 0, 0.1);
         }
         
         * {
@@ -28,6 +46,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
         }
         
         body {
@@ -46,20 +65,42 @@
                     #3e5c2d,
                     #2d4823
                 );
-            color: var(--light-color);
+            color: var(--text-color);
             min-height: 100vh;
             padding: 10px;
             font-size: 14px;
         }
         
+        [data-theme="light"] body {
+            background: 
+                linear-gradient(rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), 
+                repeating-linear-gradient(
+                    45deg,
+                    rgba(79, 98, 60, 0.05),
+                    rgba(79, 98, 60, 0.05) 10px,
+                    rgba(98, 119, 75, 0.05) 10px,
+                    rgba(98, 119, 75, 0.05) 20px
+                ),
+                linear-gradient(
+                    to bottom,
+                    #a3c293,
+                    #c5d7b5,
+                    #a3c293
+                );
+        }
+        
         .container {
             max-width: 100%;
             margin: 0 auto;
-            background-color: rgba(26, 37, 48, 0.95);
+            background-color: var(--background-color);
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             border: 1px solid #5d7c4a;
+        }
+        
+        [data-theme="light"] .container {
+            border: 1px solid #a3c293;
         }
         
         header {
@@ -67,6 +108,27 @@
             padding: 15px;
             text-align: center;
             border-bottom: 2px solid var(--accent-color);
+            position: relative;
+        }
+        
+        [data-theme="light"] header {
+            background: linear-gradient(to right, #5d7c4a, #8bac68, #5d7c4a);
+        }
+        
+        .settings-btn {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .header-title {
@@ -87,6 +149,10 @@
             flex-wrap: wrap;
             background: linear-gradient(to right, #2d4823, #3e5c2d);
             border-bottom: 1px solid var(--accent-color);
+        }
+        
+        [data-theme="light"] .tabs {
+            background: linear-gradient(to right, #5d7c4a, #8bac68);
         }
         
         .tab {
@@ -122,12 +188,12 @@
         }
         
         .card {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: var(--card-bg-color);
             border-radius: 8px;
             padding: 15px;
             margin-bottom: 15px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
         
         .card-title {
@@ -151,13 +217,17 @@
         th, td {
             padding: 10px 8px;
             text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid var(--border-color);
         }
         
         th {
             background-color: rgba(0, 0, 0, 0.3);
             font-weight: bold;
             color: var(--accent-color);
+        }
+        
+        [data-theme="light"] th {
+            background-color: rgba(0, 0, 0, 0.1);
         }
         
         tr:hover {
@@ -180,8 +250,8 @@
             padding: 10px;
             border: 1px solid var(--secondary-color);
             border-radius: 4px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--light-color);
+            background-color: var(--card-bg-color);
+            color: var(--text-color);
             font-size: 14px;
         }
         
@@ -247,7 +317,11 @@
             border-radius: 6px;
             padding: 12px;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+        }
+        
+        [data-theme="light"] .stat-card {
+            background-color: rgba(0, 0, 0, 0.05);
         }
         
         .stat-value {
@@ -258,7 +332,7 @@
         
         .stat-label {
             font-size: 12px;
-            color: var(--light-color);
+            color: var(--text-color);
         }
         
         .operations-table {
@@ -278,17 +352,17 @@
         }
         
         .report-container {
-            background-color: rgba(26, 37, 48, 0.95);
-            color: var(--light-color);
+            background-color: var(--card-bg-color);
+            color: var(--text-color);
             padding: 15px;
             border-radius: 6px;
             margin-top: 15px;
             font-size: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
         }
         
         .report-container table {
-            color: var(--light-color);
+            color: var(--text-color);
         }
         
         .report-container th {
@@ -309,6 +383,10 @@
             color: var(--light-color);
             margin-top: 15px;
             font-size: 12px;
+        }
+        
+        [data-theme="light"] footer {
+            background: linear-gradient(to right, #5d7c4a, #8bac68);
         }
         
         .total-row {
@@ -411,19 +489,19 @@
             margin: 0 auto;
             background: white;
             color: black;
-            padding: 20mm;
-            font-size: 12pt;
-            line-height: 1.4;
+            padding: 15mm;
+            font-size: 10pt;
+            line-height: 1.2;
         }
 
         .report-page table {
             width: 100%;
             border-collapse: collapse;
-            margin: 10px 0;
+            margin: 5px 0;
         }
 
         .report-page th, .report-page td {
-            padding: 5mm;
+            padding: 3mm;
             border: 1px solid black;
             text-align: left;
         }
@@ -440,11 +518,16 @@
 
         .report-page h2, .report-page h3 {
             text-align: center;
-            margin: 10mm 0;
+            margin: 5mm 0;
         }
 
         .report-page p {
-            margin: 5mm 0;
+            margin: 3mm 0;
+        }
+
+        .report-page .footer {
+            margin-top: 10mm;
+            text-align: right;
         }
 
         @media print {
@@ -459,6 +542,70 @@
                 visibility: visible;
             }
         }
+
+        /* Модальное окно настроек */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--background-color);
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--text-color);
+        }
+
+        .settings-option {
+            margin-bottom: 15px;
+        }
+
+        .settings-option label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .editable-cell {
+            background-color: rgba(243, 156, 18, 0.1);
+            border: 1px dashed var(--accent-color);
+            padding: 5px;
+            border-radius: 3px;
+            min-width: 50px;
+        }
     </style>
 </head>
 <body>
@@ -466,6 +613,9 @@
         <header>
             <div class="header-title">394 полк 3 батальон</div>
             <div class="header-subtitle">Миномётная батарея - Учёт мин 120 мм</div>
+            <button class="settings-btn" onclick="openSettings()">
+                <i class="fas fa-cog"></i>
+            </button>
         </header>
         
         <div class="pwa-info">
@@ -490,6 +640,7 @@
                     <thead>
                         <tr>
                             <th>Тип мины</th>
+                            <th>Нач. ост.</th>
                             <th>Приход</th>
                             <th>Расход</th>
                             <th>Остаток</th>
@@ -500,6 +651,7 @@
                     <tfoot>
                         <tr class="total-row">
                             <td>ВСЕГО МИН:</td>
+                            <td id="total-initial-value">0</td>
                             <td id="total-income-value">0</td>
                             <td id="total-expense-value">0</td>
                             <td id="total-balance-value">0</td>
@@ -564,6 +716,7 @@
                         <tr>
                             <th>Наименование</th>
                             <th>Ед. изм.</th>
+                            <th>Нач. ост.</th>
                             <th>Приход</th>
                             <th>Расход</th>
                             <th>Остаток</th>
@@ -581,6 +734,7 @@
                                 <option value="detonators">Взрыватели</option>
                                 <option value="ejecting">Вышибные заряды</option>
                                 <option value="powder">Пороховые заряды</option>
+                                <option value="range">Дальнобой</option>
                             </select>
                         </div>
                         
@@ -654,8 +808,7 @@
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-success" onclick="generateReport()"><i class="fas fa-file-pdf"></i> Сформировать отчёт</button>
-                    <button class="btn btn-primary" onclick="showReportPage()"><i class="fas fa-external-link-alt"></i> Показать отчёт</button>
-                    <button class="btn btn-success" onclick="downloadPDF()"><i class="fas fa-download"></i> Скачать PDF</button>
+                    <button class="btn btn-primary" onclick="printReport()"><i class="fas fa-print"></i> Печать отчёта</button>
                     <button class="btn btn-primary" id="shareReportBtn" onclick="shareReport()" style="display: none;"><i class="fas fa-share-alt"></i> Поделиться отчётом</button>
                 </div>
                 
@@ -672,6 +825,7 @@
         
         <footer>
             <p>Система учёта мин 120 мм © 2025</p>
+            <p>Разработчик: Васев А.Е. | Версия: 2.0</p>
             <button class="btn btn-primary" onclick="shareApp()"><i class="fas fa-share-alt"></i> Поделиться приложением</button>
             <div id="offline-status" style="margin-top: 10px; font-size: 12px;">
                 <i class="fas fa-wifi"></i> <span>Онлайн</span>
@@ -679,27 +833,61 @@
         </footer>
     </div>
 
+    <!-- Модальное окно настроек -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Настройки</h2>
+                <span class="close" onclick="closeSettings()">&times;</span>
+            </div>
+            <div class="settings-option">
+                <label>
+                    <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
+                    <span>Тёмная тема</span>
+                </label>
+            </div>
+            <div class="settings-option">
+                <h3>О приложении</h3>
+                <p>Приложение для учета мин 120 мм и комплектующих для 394 полка 3 батальона.</p>
+                <p>Разработчик: Васев А.Е.</p>
+                <p>Версия: 2.0</p>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="resetData()">
+                    <i class="fas fa-trash"></i> Сбросить все данные
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="notification" id="notification">Операция выполнена успешно!</div>
 
     <script>
         let mineData = {
-            'of': { name: 'ОФ', income: 0, expense: 0, balance: 0, operations: [] },
-            'smoke': { name: 'Дымовые', income: 0, expense: 0, balance: 0, operations: [] },
-            'light': { name: 'Осветительные', income: 0, expense: 0, balance: 0, operations: [] },
-            'incendiary': { name: 'Зажигательные', income: 0, expense: 0, balance: 0, operations: [] }
+            'of': { name: 'ОФ', initial: 0, income: 0, expense: 0, balance: 0, operations: [] },
+            'smoke': { name: 'Дымовые', initial: 0, income: 0, expense: 0, balance: 0, operations: [] },
+            'light': { name: 'Осветительные', initial: 0, income: 0, expense: 0, balance: 0, operations: [] },
+            'incendiary': { name: 'Зажигательные', initial: 0, income: 0, expense: 0, balance: 0, operations: [] }
         };
         
         let componentData = {
-            'detonators': { name: 'Взрыватели', unit: 'шт.', income: 0, expense: 0, balance: 0, operations: [] },
-            'ejecting': { name: 'Вышибные заряды', unit: 'шт.', income: 0, expense: 0, balance: 0, operations: [] },
-            'powder': { name: 'Пороховые заряды', unit: 'пачки', income: 0, expense: 0, balance: 0, operations: [] }
+            'detonators': { name: 'Взрыватели', unit: 'шт.', initial: 0, income: 0, expense: 0, balance: 0, operations: [] },
+            'ejecting': { name: 'Вышибные заряды', unit: 'шт.', initial: 0, income: 0, expense: 0, balance: 0, operations: [] },
+            'powder': { name: 'Пороховые заряды', unit: 'пачки', initial: 0, income: 0, expense: 0, balance: 0, operations: [] },
+            'range': { name: 'Дальнобой', unit: 'пачки', initial: 0, income: 0, expense: 0, balance: 0, operations: [] }
         };
         
         let operations = [];
         let currentReportHTML = '';
+        let currentTheme = 'dark';
         
         function saveDataToStorage() {
-            localStorage.setItem('ammoAccountingData', JSON.stringify({ mineData, componentData, operations }));
+            localStorage.setItem('ammoAccountingData', JSON.stringify({ 
+                mineData, 
+                componentData, 
+                operations,
+                currentTheme 
+            }));
         }
         
         function loadDataFromStorage() {
@@ -709,6 +897,10 @@
                 mineData = parsed.mineData || mineData;
                 componentData = parsed.componentData || componentData;
                 operations = parsed.operations || operations;
+                currentTheme = parsed.currentTheme || 'dark';
+                
+                document.body.setAttribute('data-theme', currentTheme);
+                document.getElementById('themeToggle').checked = currentTheme === 'dark';
             }
         }
         
@@ -773,7 +965,7 @@
             operations.push({ date, name: componentData[type].name, operation: 'приход', amount });
             updateTables();
             document.getElementById('component-amount').value = '1';
-            showNotification(`Добавлено ${amount} ${componentData[type].unit} ${componentData[type].name}`);
+            showNotification(`Добавлено ${amount} ${componentData[type].name}`);
         }
         
         function removeComponents() {
@@ -790,7 +982,7 @@
             operations.push({ date, name: componentData[type].name, operation: 'расход', amount });
             updateTables();
             document.getElementById('component-amount').value = '1';
-            showNotification(`Списано ${amount} ${componentData[type].unit} ${componentData[type].name}`);
+            showNotification(`Списано ${amount} ${componentData[type].name}`);
         }
         
         function updateTables() {
@@ -804,15 +996,23 @@
         function updateMinesTable() {
             const body = document.getElementById('mines-table-body');
             body.innerHTML = '';
-            let ti = 0, te = 0, tb = 0;
+            let ti = 0, te = 0, tb = 0, tInitial = 0;
             for (let k in mineData) {
                 const r = document.createElement('tr');
-                r.innerHTML = `<td>${mineData[k].name}</td><td>${mineData[k].income}</td><td>${mineData[k].expense}</td><td>${mineData[k].balance}</td>`;
+                r.innerHTML = `
+                    <td>${mineData[k].name}</td>
+                    <td class="editable-cell" contenteditable="true" onblur="updateInitial('${k}', this.textContent)">${mineData[k].initial}</td>
+                    <td>${mineData[k].income}</td>
+                    <td>${mineData[k].expense}</td>
+                    <td>${mineData[k].balance}</td>
+                `;
                 body.appendChild(r);
+                tInitial += mineData[k].initial;
                 ti += mineData[k].income;
                 te += mineData[k].expense;
                 tb += mineData[k].balance;
             }
+            document.getElementById('total-initial-value').textContent = tInitial;
             document.getElementById('total-income-value').textContent = ti;
             document.getElementById('total-expense-value').textContent = te;
             document.getElementById('total-balance-value').textContent = tb;
@@ -823,7 +1023,14 @@
             body.innerHTML = '';
             for (let k in componentData) {
                 const r = document.createElement('tr');
-                r.innerHTML = `<td>${componentData[k].name}</td><td>${componentData[k].unit}</td><td>${componentData[k].income}</td><td>${componentData[k].expense}</td><td>${componentData[k].balance}</td>`;
+                r.innerHTML = `
+                    <td>${componentData[k].name}</td>
+                    <td>${componentData[k].unit}</td>
+                    <td class="editable-cell" contenteditable="true" onblur="updateComponentInitial('${k}', this.textContent)">${componentData[k].initial}</td>
+                    <td>${componentData[k].income}</td>
+                    <td>${componentData[k].expense}</td>
+                    <td>${componentData[k].balance}</td>
+                `;
                 body.appendChild(r);
             }
         }
@@ -833,9 +1040,30 @@
             body.innerHTML = '';
             operations.slice(-5).reverse().forEach(op => {
                 const r = document.createElement('tr');
-                r.innerHTML = `<td>${op.date.split('-').reverse().join('.')}</td><td>${op.name}</td><td>${op.operation.charAt(0).toUpperCase() + op.operation.slice(1)}</td><td>${op.amount}</td>`;
+                r.innerHTML = `
+                    <td>${op.date.split('-').reverse().join('.')}</td>
+                    <td>${op.name}</td>
+                    <td>${op.operation.charAt(0).toUpperCase() + op.operation.slice(1)}</td>
+                    <td>${op.amount}</td>
+                `;
                 body.appendChild(r);
             });
+        }
+        
+        function updateInitial(type, value) {
+            const newValue = parseInt(value) || 0;
+            const oldValue = mineData[type].initial;
+            mineData[type].initial = newValue;
+            mineData[type].balance += (newValue - oldValue);
+            updateTables();
+        }
+        
+        function updateComponentInitial(type, value) {
+            const newValue = parseInt(value) || 0;
+            const oldValue = componentData[type].initial;
+            componentData[type].initial = newValue;
+            componentData[type].balance += (newValue - oldValue);
+            updateTables();
         }
         
         function updateStatistics() {
@@ -871,20 +1099,21 @@
             document.getElementById('report-date-output').textContent = fd;
             let content = '';
             if (type === 'full' || type === 'mines') {
-                content += '<h3>Мины:</h3><table><tr><th>Тип</th><th>Приход</th><th>Расход</th><th>Остаток</th></tr>';
-                let ti = 0, te = 0, tb = 0;
+                content += '<h3>Мины:</h3><table><tr><th>Тип</th><th>Нач. ост.</th><th>Приход</th><th>Расход</th><th>Остаток</th></tr>';
+                let tInitial = 0, ti = 0, te = 0, tb = 0;
                 for (let k in mineData) {
-                    content += `<tr><td>${mineData[k].name}</td><td>${mineData[k].income}</td><td>${mineData[k].expense}</td><td>${mineData[k].balance}</td></tr>`;
+                    content += `<tr><td>${mineData[k].name}</td><td>${mineData[k].initial}</td><td>${mineData[k].income}</td><td>${mineData[k].expense}</td><td>${mineData[k].balance}</td></tr>`;
+                    tInitial += mineData[k].initial;
                     ti += mineData[k].income;
                     te += mineData[k].expense;
                     tb += mineData[k].balance;
                 }
-                content += `<tr class="total-row"><td>Итого</td><td>${ti}</td><td>${te}</td><td>${tb}</td></tr></table>`;
+                content += `<tr class="total-row"><td>Итого</td><td>${tInitial}</td><td>${ti}</td><td>${te}</td><td>${tb}</td></tr></table>`;
             }
             if (type === 'full' || type === 'components') {
-                content += '<h3>Комплектующие:</h3><table><tr><th>Наим.</th><th>Ед.</th><th>Приход</th><th>Расход</th><th>Остаток</th></tr>';
+                content += '<h3>Комплектующие:</h3><table><tr><th>Наим.</th><th>Ед.</th><th>Нач. ост.</th><th>Приход</th><th>Расход</th><th>Остаток</th></tr>';
                 for (let k in componentData) {
-                    content += `<tr><td>${componentData[k].name}</td><td>${componentData[k].unit}</td><td>${componentData[k].income}</td><td>${componentData[k].expense}</td><td>${componentData[k].balance}</td></tr>`;
+                    content += `<tr><td>${componentData[k].name}</td><td>${componentData[k].unit}</td><td>${componentData[k].initial}</td><td>${componentData[k].income}</td><td>${componentData[k].expense}</td><td>${componentData[k].balance}</td></tr>`;
                 }
                 content += '</table>';
             }
@@ -897,16 +1126,99 @@
                     <p>394 полк 3 батальон, миномётная батарея</p>
                     <p>на дату: ${fd}</p>
                     ${content}
+                    <div class="footer">
+                        <p>Отчёт сформирован: ${new Date().toLocaleString('ru-RU')}</p>
+                        <p>Ответственный: _________________________</p>
+                    </div>
                 </div>
             `;
             document.getElementById('shareReportBtn').style.display = 'inline-flex';
             showNotification('Отчёт сформирован');
         }
 
-        function showReportPage() {
+        function printReport() {
             if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
-            const reportWindow = window.open('', '_blank', 'width=800,height=600');
-            reportWindow.document.write(`
+            const date = document.getElementById('report-date').value;
+            const type = document.getElementById('report-type').value;
+            const fd = new Date(date).toLocaleDateString('ru-RU');
+            
+            let content = '';
+            if (type === 'full' || type === 'mines') {
+                content += `
+                    <h3>Мины:</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Тип мины</th>
+                                <th>Нач. ост.</th>
+                                <th>Приход</th>
+                                <th>Расход</th>
+                                <th>Остаток</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                let tInitial = 0, ti = 0, te = 0, tb = 0;
+                for (let k in mineData) {
+                    content += `
+                        <tr>
+                            <td>${mineData[k].name}</td>
+                            <td>${mineData[k].initial}</td>
+                            <td>${mineData[k].income}</td>
+                            <td>${mineData[k].expense}</td>
+                            <td>${mineData[k].balance}</td>
+                        </tr>
+                    `;
+                    tInitial += mineData[k].initial;
+                    ti += mineData[k].income;
+                    te += mineData[k].expense;
+                    tb += mineData[k].balance;
+                }
+                content += `
+                        <tr class="total-row">
+                            <td>Итого</td>
+                            <td>${tInitial}</td>
+                            <td>${ti}</td>
+                            <td>${te}</td>
+                            <td>${tb}</td>
+                        </tr>
+                    </tbody>
+                    </table>
+                `;
+            }
+            if (type === 'full' || type === 'components') {
+                content += `
+                    <h3>Комплектующие:</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Наименование</th>
+                                <th>Ед. изм.</th>
+                                <th>Нач. ост.</th>
+                                <th>Приход</th>
+                                <th>Расход</th>
+                                <th>Остаток</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                for (let k in componentData) {
+                    content += `
+                        <tr>
+                            <td>${componentData[k].name}</td>
+                            <td>${componentData[k].unit}</td>
+                            <td>${componentData[k].initial}</td>
+                            <td>${componentData[k].income}</td>
+                            <td>${componentData[k].expense}</td>
+                            <td>${componentData[k].balance}</td>
+                        </tr>
+                    `;
+                }
+                content += '</tbody></table>';
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
                 <!DOCTYPE html>
                 <html lang="ru">
                 <head>
@@ -914,40 +1226,65 @@
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Отчёт</title>
                     <style>
-                        ${document.querySelector('style').innerHTML}
-                    </style>
-                </head>
-                <body>
-                    ${currentReportHTML}
-                    <div style="text-align: center; margin-top: 20mm;">
-                        <button onclick="window.print()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Печать</button>
-                        <button onclick="window.close()" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Закрыть</button>
-                    </div>
-                </body>
-                </html>
-            `);
-            reportWindow.document.close();
-        }
-        
-        function printReport() {
-            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html lang="ru">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>Отчёт для печати</title>
-                    <style>
-                        ${document.querySelector('style').innerHTML}
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            margin: 15mm;
+                            background: white;
+                            color: black;
+                        }
+                        .report-page {
+                            max-width: 210mm;
+                            margin: 0 auto;
+                            font-size: 10pt;
+                            line-height: 1.2;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 5px 0;
+                        }
+                        th, td {
+                            padding: 3mm;
+                            border: 1px solid black;
+                            text-align: left;
+                        }
+                        th {
+                            background: #f0f0f0;
+                            font-weight: bold;
+                        }
+                        .total-row {
+                            background: lightgray;
+                            font-weight: bold;
+                        }
+                        h2, h3 {
+                            text-align: center;
+                            margin: 5mm 0;
+                        }
+                        p {
+                            margin: 3mm 0;
+                            text-align: center;
+                        }
+                        .footer {
+                            margin-top: 10mm;
+                            text-align: right;
+                        }
                         @media print {
-                            body { background: white !important; }
-                            .report-page { padding: 0 !important; margin: 0 !important; }
+                            body { margin: 0; }
+                            .report-page { padding: 0; margin: 0; }
                         }
                     </style>
                 </head>
                 <body>
-                    ${currentReportHTML}
+                    <div class="report-page">
+                        <h2>Отчёт о состоянии мин и комплектующих</h2>
+                        <p>394 полк 3 батальон, миномётная батарея</p>
+                        <p>на дату: ${fd}</p>
+                        ${content}
+                        <div class="footer">
+                            <p>Отчёт сформирован: ${new Date().toLocaleString('ru-RU')}</p>
+                            <p>Ответственный: _________________________</p>
+                        </div>
+                    </div>
                 </body>
                 </html>
             `);
@@ -955,26 +1292,11 @@
             printWindow.print();
         }
         
-        function downloadPDF() {
-            if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.html(currentReportHTML, {
-                callback: function (doc) {
-                    doc.save('otchet.pdf');
-                },
-                x: 10,
-                y: 10,
-                width: 190,
-                windowWidth: 800
-            });
-        }
-        
-        async function shareReport() {
+        function shareReport() {
             if (!currentReportHTML) return showNotification('Сначала сформируйте отчёт', true);
             if (navigator.share) {
                 try {
-                    await navigator.share({
+                    navigator.share({
                         title: 'Отчёт о состоянии мин и комплектующих',
                         text: 'Отчёт 394 полк 3 батальон',
                         url: URL.createObjectURL(new Blob([currentReportHTML], {type: 'text/html'}))
@@ -996,8 +1318,52 @@
             }
         }
         
+        function resetData() {
+            if (confirm('Вы уверены, что хотите сбросить все данные? Это действие нельзя отменить.')) {
+                for (const type in mineData) {
+                    mineData[type].initial = 0;
+                    mineData[type].income = 0;
+                    mineData[type].expense = 0;
+                    mineData[type].balance = 0;
+                    mineData[type].operations = [];
+                }
+                
+                for (const type in componentData) {
+                    componentData[type].initial = 0;
+                    componentData[type].income = 0;
+                    componentData[type].expense = 0;
+                    componentData[type].balance = 0;
+                    componentData[type].operations = [];
+                }
+                
+                operations = [];
+                updateTables();
+                showNotification('Все данные сброшены');
+            }
+        }
+        
+        function openSettings() {
+            document.getElementById('settingsModal').style.display = 'flex';
+        }
+        
+        function closeSettings() {
+            document.getElementById('settingsModal').style.display = 'none';
+        }
+        
+        function toggleTheme() {
+            const isDark = document.getElementById('themeToggle').checked;
+            currentTheme = isDark ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', currentTheme);
+            saveDataToStorage();
+        }
+        
         let deferredPrompt;
-        document.getElementById('installButton').addEventListener('click', () => deferredPrompt && deferredPrompt.prompt());
+        document.getElementById('installButton').addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt = null;
+            }
+        });
         window.addEventListener('beforeinstallprompt', e => {
             e.preventDefault();
             deferredPrompt = e;
@@ -1034,6 +1400,9 @@
             document.getElementById('report-date').value = t;
             updateTables();
             updateOnlineStatus();
+            if (navigator.share) {
+                document.getElementById('shareReportBtn').style.display = 'inline-flex';
+            }
         });
     </script>
 </body>
